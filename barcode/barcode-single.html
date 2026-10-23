@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f2f2f2;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: #ffffff;
+            width: 90%;
+            max-width: 450px;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #cccccc;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #999999;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background: #333333;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #000000;
+        }
+
+        #message {
+            margin-top: 15px;
+            color: red;
+            min-height: 20px;
+        }
+
+        #barcode {
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+
+        #barcode svg {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Barcode Generator</h1>
+
+        <label for="text">Enter text or number</label>
+        <input type="text" id="text" placeholder="Example: 123456" autocomplete="off">
+
+        <button id="generate" type="button">Generate Barcode</button>
+
+        <p id="message"></p>
+
+        <div id="barcode"></div>
+    </div>
+
+    <script>
+        // This program makes a Code 39 barcode.
+        // Each character is made of 9 parts: bar, space, bar, space ... (5 bars and 4 spaces)
+        // "n" means narrow and "w" means wide.
+        const patterns = {
+            "0": "nnnwwnwnn", "1": "wnnwnnnnw", "2": "nnwwnnnnw", "3": "wnwwnnnnn",
+            "4": "nnnwwnnnw", "5": "wnnwwnnnn", "6": "nnwwwnnnn", "7": "nnnwnnwnw",
+            "8": "wnnwnnwnn", "9": "nnwwnnwnn",
+            "A": "wnnnnwnnw", "B": "nnwnnwnnw", "C": "wnwnnwnnn", "D": "nnnnwwnnw",
+            "E": "wnnnwwnnn", "F": "nnwnwwnnn", "G": "nnnnnwwnw", "H": "wnnnnwwnn",
+            "I": "nnwnnwwnn", "J": "nnnnwwwnn", "K": "wnnnnnnww", "L": "nnwnnnnww",
+            "M": "wnwnnnnwn", "N": "nnnnwnnww", "O": "wnnnwnnwn", "P": "nnwnwnnwn",
+            "Q": "nnnnnnwww", "R": "wnnnnnwwn", "S": "nnwnnnwwn", "T": "nnnnwnwwn",
+            "U": "wwnnnnnnw", "V": "nwwnnnnnw", "W": "wwwnnnnnn", "X": "nwnnwnnnw",
+            "Y": "wwnnwnnnn", "Z": "nwwnwnnnn",
+            "-": "nwnnnnwnw", ".": "wwnnnnwnn", " ": "nwwnnnwnn",
+            "$": "nwnwnwnnn", "/": "nwnwnnnwn", "+": "nwnnnwnwn", "%": "nnnwnwnwn",
+            "*": "nwnnwnwnn"
+        };
+
+        const textInput = document.getElementById("text");
+        const generateBtn = document.getElementById("generate");
+        const message = document.getElementById("message");
+        const barcodeBox = document.getElementById("barcode");
+
+        const NARROW = 2;   // width of a narrow bar or space
+        const WIDE = 5;     // width of a wide bar or space
+        const HEIGHT = 100; // height of the bars
+        const MARGIN = 20;  // empty space on left and right
+
+        function makeBarcode() {
+            message.textContent = "";
+            barcodeBox.innerHTML = "";
+
+            const text = textInput.value.trim().toUpperCase();
+
+            if (text === "") {
+                message.textContent = "Please enter some text or number.";
+                return;
+            }
+
+            // Check that every character is allowed
+            for (const ch of text) {
+                if (!patterns[ch] || ch === "*") {
+                    message.textContent = "Not allowed: \"" + ch + "\". Use A-Z, 0-9, space and - . $ / + %";
+                    return;
+                }
+            }
+
+            // A Code 39 barcode starts and ends with *
+            const fullText = "*" + text + "*";
+
+            let x = MARGIN;
+            let bars = "";
+
+            for (let i = 0; i < fullText.length; i++) {
+                const pattern = patterns[fullText[i]];
+
+                for (let j = 0; j < pattern.length; j++) {
+                    const width = pattern[j] === "w" ? WIDE : NARROW;
+
+                    // Even position (0, 2, 4...) is a bar, odd position is a space
+                    if (j % 2 === 0) {
+                        bars += `<rect x="${x}" y="10" width="${width}" height="${HEIGHT}" fill="black" />`;
+                    }
+                    x += width;
+                }
+
+                // Small gap between two characters
+                x += NARROW;
+            }
+
+            const totalWidth = x - NARROW + MARGIN;
+            const totalHeight = HEIGHT + 40;
+
+            barcodeBox.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}">
+                    <rect width="100%" height="100%" fill="white" />
+                    ${bars}
+                    <text x="${totalWidth / 2}" y="${HEIGHT + 32}" text-anchor="middle" font-size="18" font-family="Arial">${text}</text>
+                </svg>
+            `;
+        }
+
+        generateBtn.addEventListener("click", makeBarcode);
+
+        textInput.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                makeBarcode();
+            }
+        });
+    </script>
+</body>
+
+</html>
