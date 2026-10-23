@@ -1,0 +1,87 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f2f2f2;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background: #ffffff;
+    width: 90%;
+    max-width: 400px;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #cccccc;
+    text-align: center;
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    text-align: left;
+    margin-bottom: 8px;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #999999;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    background: #ffffff;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background: #333333;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #000000;
+}
+
+#message {
+    margin-top: 15px;
+    color: red;
+    min-height: 20px;
+}
+
+#qrcode {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+#qrcode img,
+#qrcode canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+#download {
+    margin-top: 10px;
+}
+
+.hidden {
+    display: none;
+}
